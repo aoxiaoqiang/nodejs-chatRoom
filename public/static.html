@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Static page test</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="chat-box">
+        <h3 class="page-title">翼起点在线简易聊天室(当前<span class="num">0</span>人在线)</h3>
+        <div class="message-container">
+            <div class="message-list">
+                <p>
+                    在线聊天室(<span class="conn text-bold text-red">正在连接...</span>)
+                    <span class="leave">, </span>
+                </p>
+                <ul id="messages"></ul>
+            </div>
+            <div class="sent-message relative clearfix">
+                <form action="" class="form-data relative">
+                    <input class="input-message" id="m" autocomplete="off" />
+                    <button class="btn-send">发送消息</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="js/socket.io.static.js"></script>
+    <script src="js/jquery.js"></script>
+    <script>
+    var socket = io();
+    console.log(socket);
+    $('form').submit(function() {
+        if ($('#m').val().trim() == '') {
+            return false;
+        }
+        socket.emit('chat', $('#m').val());
+        $('#m').val('');
+        return false;
+    });
+
+    socket.on('chat', function(res) {
+        switch (res.type) {
+            case 0:
+                $('.conn').text('连接成功, 可以开始聊天儿了哦 -_-!！').removeClass('text-red').addClass('text-green');
+                $('.num').text(res.content);
+                $('#m').focus();
+                break;
+            case 1:
+                var strHtml = '<li class="item clearfix">';
+                strHtml += '<span class="';
+                if (socket.id == res.content.msgId.replace('/#', '')) {
+                    strHtml += 'self';
+                }
+                strHtml += '">' + res.content.text + '</span>';
+                strHtml += '</li>';
+                $('#messages').append(strHtml);
+                $('.message-list').scrollTop($('#messages').height());
+                break;
+            case 2:
+                break;
+            case 3:
+                // $('.leave').text(res.content);
+                break;
+        }
+
+        // console.log(msg);
+        // if (msg == 'connect success') {
+
+        // } else {
+        //     $('#messages').append($('<li class="item clearfix"><span class="pull-right">' + msg + '</span></li>'));
+        //     $('.message-list').scrollTop($('#messages').height());
+        // }
+    });
+    </script>
+</body>
+
+</html>
