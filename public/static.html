@@ -36,6 +36,7 @@
     <script src="js/jquery.js"></script>
     <script>
     var socket = io();
+    socket.id = 'xiaoqiang';
     console.log(socket);
     $('form').submit(function() {
         if ($('#m').val().trim() == '') {
@@ -64,6 +65,7 @@
                     userAvatarUrl = '',
                     messageContent = '';
 
+                // 判断是否是自己发的消息
                 if (socket.id == res.content.msgId.replace('/#', '')) {
                     userType = 'self';
                     userAvatarUrl = 'image/avatar/avatar1.png';
@@ -71,8 +73,18 @@
                     userType = 'others';
                     userAvatarUrl = 'image/avatar/avatar2.png';
                 }
+
+                // 判断是否是链接
+                if (IsURL(res.content.text)) {
+                    var msg = res.content.text;
+                    messageContent = '<a href="' + msg + '" target="_blank">' + msg + '</a>';
+
+                } else {
+                    messageContent = res.content.text;
+                }
+
                 // res.content.text
-                var outHtml = messageTemplate.replace('{{userType}}', userType).replace('{{userAvatarUrl}}', userAvatarUrl).replace('{{messageContent}}', res.content.text);
+                var outHtml = messageTemplate.replace('{{userType}}', userType).replace('{{userAvatarUrl}}', userAvatarUrl).replace('{{messageContent}}', messageContent);
                 $('#messages').append(outHtml);
                 $('.message-list').scrollTop($('#messages').height());
                 break;
@@ -85,7 +97,14 @@
     });
 
 
-
+    // 检测是否是 Url
+    function IsURL(str_url) {
+        var res = str_url.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+        if (res == null)
+            return false;
+        else
+            return true;
+    }
     </script>
 </body>
 

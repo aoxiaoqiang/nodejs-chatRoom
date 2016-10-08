@@ -9,13 +9,14 @@ app.use('/static', express.static('public'));
 
 
 /*
-type 	0		连接
-		1		普通消息
-		3		离开
+type    0       连接
+        1       普通消息
+        3       离开
 */
 var userNum = 0;
 // Connect 
 io.on('connection', function(socket) {
+    console.log(socket.id);
     userNum++;
     io.emit('chat', {
         type: 0,
@@ -24,7 +25,9 @@ io.on('connection', function(socket) {
     });
     console.log(userNum);
 
-    socket.on('chat', function(msg) {
+    socket.on('chat', function(chatMsg) {
+        var msg = chatMsg;
+        // console.log('message: ' + msg);
         io.emit('chat', {
             type: 1,
             date: getTime(new Date()),
@@ -33,7 +36,7 @@ io.on('connection', function(socket) {
                 text: msg
             }
         });
-        console.log('message: ' + msg);
+
     }).on('disconnect', function() {
         userNum--;
         io.emit('chat', {
